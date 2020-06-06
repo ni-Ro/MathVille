@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+
+<html>
+    
+    <head>
+        
+        <title>MathVille</title>
+        
+        <link href = "https://fonts.googleapis.com/css2?family=Overpass:wght@300&display=swap" rel = "stylesheet">
+        
+        <script type = "text/javascript" src = "libraries/phaser.js"></script>
+        <script type = "text/javascript" src = "libraries/easystar-0.4.3.js"></script>
+        
+        <script type = "text/javascript" src = "scenes/load.js"></script>
+        <script type = "text/javascript" src = "scenes/walk.js"></script>
+        <script type = "text/javascript" src = "scenes/decorate.js"></script>
+        <script type = "text/javascript" src = "scenes/assemble.js"></script>
+        <script type = "text/javascript" src = "scenes/purchase.js"></script>
+        <script type = "text/javascript" src = "scenes/earn.js"></script>
+        <script type = "text/javascript" src = "scenes/intro.js"></script>
+        
+        <link rel = "preload" href = "assets/images/busts/neighbourBust.png" as = "image">
+        <link rel = "preload" href = "assets/images/busts/playerBust.png" as = "image">
+        <link rel = "preload" href = "assets/images/busts/sellerBust.png" as = "image">
+        
+        <script>
+            
+            const config = 
+            {
+                type: Phaser.AUTO,
+                width: 800,
+                height: 600,
+                pixelArt: true,
+                roundPixels: true,
+                backgroundColor: 0xD3D3D3,
+                parent: 'gameDiv'
+            };
+            
+            const game = new Phaser.Game(config);
+            
+            game.scene.add('load',     Load);
+            game.scene.add('walk',     Walk);
+            game.scene.add('decorate', Decorate);
+            game.scene.add('assemble', Assemble);
+            game.scene.add('purchase', Purchase);
+            game.scene.add('earn',     Earn);
+            game.scene.add('intro',    Intro);
+            
+            const furniture = 
+            [
+                {
+                    name: "drinks cabinet",
+                    key: 'barStand',
+                    png: 'Barstand64.png',
+                    level: 1,
+                    purchased: true,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 10
+                },
+                {
+                    name: "bar stool",
+                    key: 'barStool',
+                    png: 'Barstool64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 5
+                },
+                {
+                    name: "wall clock",
+                    key: 'clockWall',
+                    png: 'Clockwall64.png',
+                    level: 2,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 8
+                },
+                {
+                    name: "crate",
+                    key: 'crateMilk',
+                    png: 'Cratemilk64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 2
+                },
+                {
+                    name: "cushion",
+                    key: 'cushion',
+                    png: 'Cushion64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 4
+                },
+                {
+                    name: "dartboard",
+                    key: 'dartboard',
+                    png: 'Dartboard64.png',
+                    level: 2,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 6
+                },
+                {
+                    name: "heater",
+                    key: 'heater',
+                    png: 'Heater64.png',
+                    level: 2,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 7
+                },
+                {
+                    name: "karaoke machine",
+                    key: 'machineKaraoke',
+                    png: 'MachineKaraoke64.png',
+                    level: 2,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 12
+                },
+                {
+                    name: "poster",
+                    key: 'posterWall',
+                    png: 'Posterwall64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 1
+                },
+                {
+                    name: "bottle rack",
+                    key: 'rackBottle',
+                    png: 'Rackbottle64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 6
+                },
+                {
+                    name: "sink",
+                    key: 'sink',
+                    png: 'Sink64.png',
+                    level: 2,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 14
+                },
+                {
+                    name: "stool",
+                    key: 'stool',
+                    png: 'Stool64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 5
+                },
+                {
+                    name: "coffee table",
+                    key: 'tableCoffee',
+                    png: 'Tablecoffee64.png',
+                    level: 2,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 8
+                },
+                {
+                    name: "nightstand",
+                    key: 'tableNightstand',
+                    png: 'Tablenightstand64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 7
+                },
+                {
+                    name: "table",
+                    key: 'tableRound',
+                    png: 'Tableround64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 15
+                },
+                {
+                    name: "toilet",
+                    key: 'toilet',
+                    png: 'Toilet64.png',
+                    level: 2,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 14
+                },
+                {
+                    name: "TV",
+                    key: 'TV',
+                    png: 'TV64.png',
+                    level: 2,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 15
+                },
+                {
+                    name: "umbrella holder",
+                    key: 'umbrellaReceptacle',
+                    png: 'Umbrellareceptacle64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 4
+                },
+                {
+                    name: "green vase",
+                    key: 'vaseGreen',
+                    png: 'Vasegreen64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 3
+                },
+                {
+                    name: "purple vase",
+                    key: 'vasePurple',
+                    png: 'Vasepurple64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 5
+                },
+                {
+                    name: "vent",
+                    key: 'ventSmall',
+                    png: 'Ventsmall64.png',
+                    level: 1,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 6
+                },
+                {
+                    name: "door mat",
+                    key: 'welcomeMat',
+                    png: 'Welcomemat64.png',
+                    level: 2,
+                    purchased: false,
+                    assembled: false,
+                    perfected: false,
+                    quality: 0,
+                    onDisplay: false,
+                    xTile: '',
+                    yTile: '',
+                    cost: 6
+                }
+            ];
+            
+            let Town =
+            {
+                mapKey: 'townMap'
+            };
+            
+            let House = 
+            {
+                mapKey: 'houseMap'
+            };
+            
+            let Shop = 
+            {
+                mapKey: 'shopMap'
+            };
+            
+            let NeighbourHouse =
+            {
+                mapKey: 'neighbourHouseMap'
+            };
+            
+            let currentLocation = Town;
+            
+            let comeFrom = 'startGame';
+            
+            let startX;
+            let startY;
+            
+            let Player = 
+            {
+                money: 8,
+                highScore: 0
+            };
+            
+            let Seller = {};
+            
+            let Neighbour = {};
+
+            let collision;
+            
+            let easystar;
+            
+            let Game = {};
+            
+            let marker;
+            
+            let storedX;
+            let storedY;
+            
+            let clickedFurnitureObject;
+            
+            let submitButton;
+            
+            let randomNum1;
+            let randomNum2;
+            
+            let graphics;
+            
+            const tilesets = ['bar64', 'kanagawa64', 'school64', 'trainFloors64', 'trainHouse64', 'trainObjects64'];
+            
+            let moneyText;
+            
+            game.scene.start('load');
+            
+        </script>
+        
+        <style>
+        
+            body
+            {
+                margin: 0;
+            }
+            
+            #gameContainerDiv
+            {
+                width: 100%;
+            }
+        
+            #gameDiv
+            {
+                position: relative;
+                margin: auto;
+                top: 100px;
+                width: 800px;
+                height: 600px;
+            }
+            
+            .centered
+            {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+            
+            .message
+            {
+                border: 6px outset white; 
+                padding: 0;
+                margin: 0;
+                text-align: center;
+                background: rgba(255, 255, 255, 1);
+                color: black;
+                font-family: 'Overpass', sans-serif;
+                font-size: 20px;
+            }
+            
+            .para
+            {
+                margin: 0;
+                white-space: pre-line;
+            }
+            
+            .button
+            {
+                border: 4px outset white; 
+                padding: 0;
+                margin: 0;
+                text-align: center;
+                background: rgba(239, 191, 210, 1);
+                color: black;
+                font-family: 'Overpass', sans-serif;
+                font-size: 24px;
+            }
+            
+            .button:focus
+            {
+                outline: 0;
+            }
+            
+        </style>
+        
+    </head>
+    
+    <body>
+        
+        <div id = 'gameContainerDiv'>
+            
+            <div id = 'gameDiv'></div>
+            
+        </div>
+        
+        
+    </body>
+    
+</html>
+    
